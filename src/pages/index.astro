@@ -3,34 +3,69 @@ import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog'))
+  .filter(p => !p.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const latestPosts = posts.slice(0, 3);
 ---
 
 <!doctype html>
 <html lang="zh-CN">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-	</head>
-	<body>
-		<Header />
-		<main>
-			<h1>👋 你好，我是 Kang</h1>
-			<p>
-				一名全栈工程师，喜欢用代码解决实际问题。
-				这里记录我的项目、思考和踩过的坑。
-			</p>
-			<p>
-				目前在做的事情：
-			</p>
-			<ul>
-				<li>探索独立开发，寻找小众但有价值的 SaaS 方向</li>
-				<li>用 AI 工具提升开发效率，并思考如何把 AI 产品化</li>
-				<li>持续学习 Rust 和系统编程</li>
-			</ul>
-			<p>
-				如果你对上面任何一个话题感兴趣，欢迎通过
-				<a href="https://github.com/">GitHub</a> 联系我，或者去看看<a href="/blog/">博客</a>。
-			</p>
-		</main>
-		<Footer />
-	</body>
+  <head>
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <Header />
+    <main class="flex-1">
+      <!-- Hero -->
+      <section class="max-w-4xl mx-auto px-4 pt-20 pb-16 text-center">
+        <h1 class="text-4xl sm:text-5xl font-bold mb-4 tracking-tight">
+          👋 你好，我是 <span class="text-accent dark:text-accent-dark">Kang</span>
+        </h1>
+        <p class="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
+          全栈工程师，正在探索独立开发。<br class="hidden sm:block" />
+          这里记录我的项目、思考和踩过的坑。
+        </p>
+        <div class="mt-8 flex justify-center gap-4">
+          <a href="/blog" class="px-6 py-2.5 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-lg font-medium hover:opacity-80 transition-opacity">
+            阅读博客
+          </a>
+          <a href="/about" class="px-6 py-2.5 border border-gray-300 dark:border-gray-700 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors">
+            关于我
+          </a>
+        </div>
+      </section>
+
+      <!-- 最新文章 -->
+      <section class="max-w-4xl mx-auto px-4 pb-20">
+        <h2 class="text-2xl font-bold mb-8">📝 最新文章</h2>
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {latestPosts.map(post => (
+            <a href={`/blog/${post.id}/`} class="group block p-6 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-accent/30 dark:hover:border-accent-dark/30 hover:shadow-sm transition-all">
+              <h3 class="font-semibold mb-2 group-hover:text-accent dark:group-hover:text-accent-dark transition-colors">{post.data.title}</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-3">{post.data.description}</p>
+              <time class="text-xs text-gray-400">{post.data.pubDate.toLocaleDateString('zh-CN')}</time>
+              {post.data.tags && post.data.tags.length > 0 && (
+                <div class="flex flex-wrap gap-1.5 mt-3">
+                  {post.data.tags.map(tag => (
+                    <span class="px-2 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400">#{tag}</span>
+                  ))}
+                </div>
+              )}
+            </a>
+          ))}
+        </div>
+        {posts.length > 3 && (
+          <div class="text-center mt-10">
+            <a href="/blog" class="text-accent dark:text-accent-dark hover:underline font-medium">
+              查看全部 {posts.length} 篇文章 →
+            </a>
+          </div>
+        )}
+      </section>
+    </main>
+    <Footer />
+  </body>
 </html>

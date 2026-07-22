@@ -1,32 +1,51 @@
 ---
-import Layout from '../layouts/BlogPost.astro';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+
+const title = "关于我";
+const description = "关于 Kang 的介绍";
 ---
 
-<Layout
-	title="关于我"
-	description="关于 Kang 的介绍"
-	pubDate={new Date('2026-07-10')}
->
-	<p>
-		我是一名全栈工程师，有 5 年以上的开发经验。擅长 Java/Spring Boot 后端开发，
-		也熟悉 Python、JavaScript/TypeScript 等语言。
-	</p>
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <BaseHead title={title} description={description} />
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <Header />
+    <main class="flex-1 max-w-3xl mx-auto px-4 py-12">
+      <h1 class="text-3xl font-bold mb-8">👤 关于我</h1>
 
-	<p>
-		目前我在探索独立开发的可能性——寻找那些被大公司忽视、但有真实付费意愿的小众 B2B 市场。
-		我相信小而美的 SaaS 产品比追风口更有价值。
-	</p>
+      <div class="prose prose-gray dark:prose-invert max-w-none">
+        <p>
+          我是一名全栈工程师，有 5 年以上开发经验。主要使用 Java/Spring Boot 做后端，
+          也熟悉 Python、JavaScript/TypeScript、Go 等语言。
+        </p>
 
-	<p>
-		这个博客记录我的技术探索、项目进展和创业思考。如果你也在做类似的事情，
-		或者对某个方向感兴趣，欢迎通过 GitHub 联系我。
-	</p>
+        <p>
+          目前正在探索独立开发——寻找被大公司忽视、但有真实付费意愿的小众 B2B 市场。
+          我相信小而美的 SaaS 比追风口更有价值。
+        </p>
 
-	<h2>技术栈</h2>
-	<ul>
-		<li>后端：Java / Spring Boot / Python / Go</li>
-		<li>前端：React / Next.js / Astro</li>
-		<li>数据库：MySQL / PostgreSQL / Redis</li>
-		<li>DevOps：Docker / Linux / CI/CD</li>
-	</ul>
-</Layout>
+        <p>
+          这个博客记录我的技术探索、项目进展和创业思考。如果你也在做类似的事情，欢迎交流。
+        </p>
+
+        <h2>🛠 技术栈</h2>
+        <ul>
+          <li><strong>后端：</strong>Java / Spring Boot / Python / Go</li>
+          <li><strong>前端：</strong>React / Next.js / Astro</li>
+          <li><strong>数据库：</strong>MySQL / PostgreSQL / Redis</li>
+          <li><strong>DevOps：</strong>Docker / Linux / CI/CD</li>
+        </ul>
+
+        <h2>📬 联系方式</h2>
+        <p>
+          可以通过 <a href="https://github.com/Alex-zk">GitHub</a> 找到我。
+        </p>
+      </div>
+    </main>
+    <Footer />
+  </body>
+</html>

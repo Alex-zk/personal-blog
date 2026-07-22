@@ -1,86 +1,90 @@
 ---
-import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
 import Footer from '../components/Footer.astro';
-import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
 
-type Props = CollectionEntry<'blog'>['data'];
+interface Props {
+  entry: CollectionEntry<'blog'>;
+}
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { entry } = Astro.props;
+const { title, description, pubDate, updatedDate, tags } = entry.data;
 ---
 
-<html lang="en">
-	<head>
-		<BaseHead title={title} description={description} />
-		<style>
-			main {
-				width: calc(100% - 2em);
-				max-width: 100%;
-				margin: 0;
-			}
-			.hero-image {
-				width: 100%;
-			}
-			.hero-image img {
-				display: block;
-				margin: 0 auto;
-				border-radius: 12px;
-				box-shadow: var(--box-shadow);
-			}
-			.prose {
-				width: 720px;
-				max-width: calc(100% - 2em);
-				margin: auto;
-				padding: 1em;
-				color: rgb(var(--gray-dark));
-			}
-			.title {
-				margin-bottom: 1em;
-				padding: 1em 0;
-				text-align: center;
-				line-height: 1;
-			}
-			.title h1 {
-				margin: 0 0 0.5em 0;
-			}
-			.date {
-				margin-bottom: 0.5em;
-				color: rgb(var(--gray));
-			}
-			.last-updated-on {
-				font-style: italic;
-			}
-		</style>
-	</head>
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <BaseHead title={title} description={description} />
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <Header />
+    <main class="flex-1">
+      <article class="max-w-3xl mx-auto px-4 py-12">
+        <!-- 文章头部 -->
+        <header class="mb-10 text-center">
+          <h1 class="text-3xl sm:text-4xl font-bold mb-4 tracking-tight">{title}</h1>
+          <div class="flex items-center justify-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+            <time datetime={pubDate.toISOString()}>
+              {pubDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </time>
+            {updatedDate && (
+              <span class="text-xs">
+                (更新于 {updatedDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })})
+              </span>
+            )}
+          </div>
+          {tags && tags.length > 0 && (
+            <div class="flex justify-center flex-wrap gap-2 mt-4">
+              {tags.map(tag => (
+                <a href={`/blog?tag=${tag}`} class="px-2.5 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-accent/10 hover:text-accent dark:hover:text-accent-dark transition-colors">
+                  #{tag}
+                </a>
+              ))}
+            </div>
+          )}
+        </header>
 
-	<body>
-		<Header />
-		<main>
-			<article>
-				<div class="hero-image">
-					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
-				</div>
-				<div class="prose">
-					<div class="title">
-						<div class="date">
-							<FormattedDate date={pubDate} />
-							{
-								updatedDate && (
-									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
-									</div>
-								)
-							}
-						</div>
-						<h1>{title}</h1>
-						<hr />
-					</div>
-					<slot />
-				</div>
-			</article>
-		</main>
-		<Footer />
-	</body>
+        <!-- 文章正文 -->
+        <div class="prose prose-gray dark:prose-invert prose-lg max-w-none">
+          <slot />
+        </div>
+
+        <!-- Giscus 评论区 -->
+        <div class="mt-16 pt-8 border-t border-gray-200 dark:border-gray-800">
+          <h2 class="text-xl font-bold mb-6">💬 评论</h2>
+          <div class="giscus"></div>
+          <p class="text-sm text-gray-400 dark:text-gray-500 mt-4">
+            加载不出来？去 <a href="https://github.com/Alex-zk/personal-blog/discussions" class="text-accent hover:underline">GitHub Discussions</a> 留言也🉑。
+          </p>
+        </div>
+      </article>
+    </main>
+    <Footer />
+  </body>
 </html>
+
+<script is:inline>
+  // Giscus 评论
+  (function() {
+    const container = document.querySelector('.giscus');
+    if (!container) return;
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+    script.setAttribute('data-repo', 'Alex-zk/personal-blog');
+    script.setAttribute('data-repo-id', 'R_kgDOTgS3Zw');
+    script.setAttribute('data-category', 'Announcements');
+    script.setAttribute('data-category-id', 'DIC_kwDOTgS3Z84Ckz2o');
+    script.setAttribute('data-mapping', 'pathname');
+    script.setAttribute('data-strict', '0');
+    script.setAttribute('data-reactions-enabled', '1');
+    script.setAttribute('data-emit-metadata', '0');
+    script.setAttribute('data-input-position', 'top');
+    script.setAttribute('data-theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    script.setAttribute('data-lang', 'zh-CN');
+    script.setAttribute('data-loading', 'lazy');
+    script.crossOrigin = 'anonymous';
+    script.async = true;
+    container.appendChild(script);
+  })();
+</script>

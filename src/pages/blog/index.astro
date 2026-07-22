@@ -1,114 +1,119 @@
 ---
-import { Image } from 'astro:assets';
-import { getCollection } from 'astro:content';
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
-import FormattedDate from '../../components/FormattedDate.astro';
 import Header from '../../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { getCollection } from 'astro:content';
 
-const posts = (await getCollection('blog')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+const allPosts = (await getCollection('blog'))
+  .filter(p => !p.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+// 提取所有标签
+const allTags = [...new Set(allPosts.flatMap(p => p.data.tags || []))].sort();
+const title = "博客";
+const description = "所有文章";
 ---
 
 <!doctype html>
 <html lang="zh-CN">
-	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
-		<style>
-			main {
-				width: 960px;
-			}
-			ul {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 2rem;
-				list-style-type: none;
-				margin: 0;
-				padding: 0;
-			}
-			ul li {
-				width: calc(50% - 1rem);
-			}
-			ul li * {
-				text-decoration: none;
-				transition: 0.2s ease;
-			}
-			ul li:first-child {
-				width: 100%;
-				margin-bottom: 1rem;
-				text-align: center;
-			}
-			ul li:first-child img {
-				width: 100%;
-			}
-			ul li:first-child .title {
-				font-size: 2.369rem;
-			}
-			ul li img {
-				margin-bottom: 0.5rem;
-				border-radius: 12px;
-			}
-			ul li a {
-				display: block;
-			}
-			.title {
-				margin: 0;
-				color: rgb(var(--black));
-				line-height: 1;
-			}
-			.date {
-				margin: 0;
-				color: rgb(var(--gray));
-			}
-			ul li a:hover h4,
-			ul li a:hover .date {
-				color: rgb(var(--accent));
-			}
-			ul a:hover img {
-				box-shadow: var(--box-shadow);
-			}
-			@media (max-width: 720px) {
-				ul {
-					gap: 0.5em;
-				}
-				ul li {
-					width: 100%;
-					text-align: center;
-				}
-				ul li:first-child {
-					margin-bottom: 0;
-				}
-				ul li:first-child .title {
-					font-size: 1.563em;
-				}
-			}
-		</style>
-	</head>
-	<body>
-		<Header />
-		<main>
-			<section>
-				<ul>
-					{
-						posts.map((post) => (
-							<li>
-								<a href={`/blog/${post.id}/`}>
-									{post.data.heroImage && (
-										<Image width={720} height={360} src={post.data.heroImage} alt="" />
-									)}
-									<h4 class="title">{post.data.title}</h4>
-									<p class="date">
-										<FormattedDate date={post.data.pubDate} />
-									</p>
-								</a>
-							</li>
-						))
-					}
-				</ul>
-			</section>
-		</main>
-		<Footer />
-	</body>
+  <head>
+    <BaseHead title={title} description={description} />
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <Header />
+    <main class="flex-1 max-w-4xl mx-auto px-4 py-12 w-full">
+      <h1 class="text-3xl font-bold mb-4">📝 博客</h1>
+
+      <!-- 搜索 + 标签过滤 -->
+      <div class="mb-8 space-y-3">
+        <input
+          id="searchInput"
+          type="text"
+          placeholder="搜索文章..."
+          class="w-full max-w-md px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 transition"
+        />
+        <div class="flex flex-wrap gap-2" id="tagFilters">
+          <button class="tag-btn px-3 py-1 text-xs rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium" data-tag="all">全部</button>
+          {allTags.map(tag => (
+            <button class="tag-btn px-3 py-1 text-xs rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" data-tag={tag}>
+              {tag}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <!-- 文章列表 -->
+      <div class="space-y-4" id="postList">
+        {allPosts.map(post => (
+          <a href={`/blog/${post.id}/`} class="post-item block p-5 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-accent/30 dark:hover:border-accent-dark/30 hover:shadow-sm transition-all" data-tags={(post.data.tags || []).join(',')} data-title={post.data.title} data-desc={post.data.description}>
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1 min-w-0">
+                <h2 class="font-semibold text-lg mb-1 hover:text-accent dark:hover:text-accent-dark transition-colors">{post.data.title}</h2>
+                <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">{post.data.description}</p>
+                <div class="flex items-center gap-3 mt-2.5">
+                  <time class="text-xs text-gray-400">{post.data.pubDate.toLocaleDateString('zh-CN')}</time>
+                  {(post.data.tags || []).length > 0 && (
+                    <div class="flex gap-1.5">
+                      {post.data.tags!.map(tag => (
+                        <span class="px-2 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-gray-800 text-gray-400">#{tag}</span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </a>
+        ))}
+      </div>
+
+      <p class="text-center text-sm text-gray-400 mt-4" id="noResults" style="display:none">😕 没有匹配的文章</p>
+    </main>
+    <Footer />
+  </body>
 </html>
+
+<script>
+  // 标签过滤 + 搜索
+  const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+  const tagButtons = document.querySelectorAll('.tag-btn');
+  const postItems = document.querySelectorAll('.post-item');
+  const noResults = document.getElementById('noResults')!;
+  let activeTag = 'all';
+
+  function filter() {
+    const query = searchInput.value.toLowerCase();
+    let visible = 0;
+    postItems.forEach((item) => {
+      const el = item as HTMLElement;
+      const tags = el.dataset.tags || '';
+      const title = (el.dataset.title || '').toLowerCase();
+      const desc = (el.dataset.desc || '').toLowerCase();
+      const matchTag = activeTag === 'all' || tags.split(',').includes(activeTag);
+      const matchSearch = !query || title.includes(query) || desc.includes(query);
+      const show = matchTag && matchSearch;
+      (el as HTMLElement).style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    noResults.style.display = visible === 0 ? '' : 'none';
+  }
+
+  searchInput?.addEventListener('input', filter);
+
+  tagButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeTag = btn.dataset.tag || 'all';
+      tagButtons.forEach(b => {
+        b.classList.toggle('bg-gray-900', b.dataset.tag === activeTag);
+        b.classList.toggle('dark:bg-white', b.dataset.tag === activeTag);
+        b.classList.toggle('text-white', b.dataset.tag === activeTag);
+        b.classList.toggle('dark:text-gray-900', b.dataset.tag === activeTag);
+        b.classList.toggle('bg-gray-100', b.dataset.tag !== activeTag);
+        b.classList.toggle('dark:bg-gray-800', b.dataset.tag !== activeTag);
+        b.classList.toggle('text-gray-600', b.dataset.tag !== activeTag);
+        b.classList.toggle('dark:text-gray-300', b.dataset.tag !== activeTag);
+        b.classList.toggle('font-medium', b.dataset.tag === activeTag);
+      });
+      filter();
+    });
+  });
+</script>
