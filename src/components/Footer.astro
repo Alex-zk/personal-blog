@@ -1,12 +1,12 @@
 ---
 import { GITHUB_URL } from '../consts';
-const today = new Date();
+const y = new Date().getFullYear();
 ---
 
-<footer class="border-t border-gray-200 dark:border-gray-800 mt-20">
-  <div class="max-w-4xl mx-auto px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
-    <p>&copy; {today.getFullYear()} Kang. 由 <a href="https://astro.build" class="hover:text-accent dark:hover:text-accent-dark transition-colors">Astro</a> 构建，部署于 <a href="https://pages.github.com" class="hover:text-accent dark:hover:text-accent-dark transition-colors">GitHub Pages</a>。</p>
-    <div class="flex justify-center gap-4 mt-3">
+<footer class="border-t border-gray-200/50 dark:border-gray-800/50 mt-auto">
+  <div class="max-w-4xl mx-auto px-6 py-8 text-center text-xs text-text-soft dark:text-gray-500">
+    <p>&copy; {y} Kang · 由 <a href="https://astro.build" class="hover:text-accent transition-colors">Astro</a> 驱动 · 部署于 <a href="https://pages.github.com" class="hover:text-accent transition-colors">GitHub Pages</a></p>
+    <div class="flex justify-center gap-4 mt-2">
       <a href={GITHUB_URL} target="_blank" class="hover:text-gray-900 dark:hover:text-white transition-colors">GitHub</a>
     </div>
   </div>

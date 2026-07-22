@@ -5,116 +5,74 @@ import Header from '../../components/Header.astro';
 import { BASE } from '../../consts';
 import { getCollection } from 'astro:content';
 
-const allPosts = (await getCollection('blog'))
-  .filter(p => !p.data.draft)
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
-
-// 提取所有标签
+const allPosts = (await getCollection('blog')).filter(p => !p.data.draft).sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 const allTags = [...new Set(allPosts.flatMap(p => p.data.tags || []))].sort();
-const title = "博客";
-const description = "所有文章";
 ---
 
 <!doctype html>
 <html lang="zh-CN">
-  <head>
-    <BaseHead title={title} description={description} />
-  </head>
-  <body class="min-h-screen flex flex-col">
+  <head><BaseHead title="博客" description="所有文章" /></head>
+  <body class="min-h-screen flex flex-col bg-bg-soft dark:bg-gray-950">
     <Header />
-    <main class="flex-1 max-w-4xl mx-auto px-4 py-12 w-full">
-      <h1 class="text-3xl font-bold mb-4">📝 博客</h1>
+    <main class="flex-1 max-w-4xl mx-auto px-6 py-12 w-full">
+      <h1 class="text-3xl font-extrabold mb-8 tracking-tight">📝 博客</h1>
 
-      <!-- 搜索 + 标签过滤 -->
-      <div class="mb-8 space-y-3">
-        <input
-          id="searchInput"
-          type="text"
-          placeholder="搜索文章..."
-          class="w-full max-w-md px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 transition"
-        />
-        <div class="flex flex-wrap gap-2" id="tagFilters">
-          <button class="tag-btn px-3 py-1 text-xs rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium" data-tag="all">全部</button>
+      <!-- 搜索 + 标签 -->
+      <div class="mb-10 space-y-4">
+        <input id="search" type="text" placeholder="搜索文章..." class="w-full max-w-md px-4 py-2.5 bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent/50 transition" />
+        <div class="flex flex-wrap gap-2" id="tags">
+          <button class="tag-btn px-3 py-1.5 text-xs rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium transition-all" data-tag="all">全部</button>
           {allTags.map(tag => (
-            <button class="tag-btn px-3 py-1 text-xs rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" data-tag={tag}>
-              {tag}
-            </button>
+            <button class="tag-btn px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-text-soft dark:text-gray-400 hover:border-accent/30 transition-all" data-tag={tag}>{tag}</button>
           ))}
         </div>
+        <p class="text-xs text-text-soft dark:text-gray-500">{allPosts.length} 篇文章</p>
       </div>
 
       <!-- 文章列表 -->
-      <div class="space-y-4" id="postList">
+      <div class="space-y-3" id="posts">
         {allPosts.map(post => (
-          <a href={`${BASE}/blog/${post.id}/`} class="post-item block p-5 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-accent/30 dark:hover:border-accent-dark/30 hover:shadow-sm transition-all" data-tags={(post.data.tags || []).join(',')} data-title={post.data.title} data-desc={post.data.description}>
-            <div class="flex items-start justify-between gap-4">
-              <div class="flex-1 min-w-0">
-                <h2 class="font-semibold text-lg mb-1 hover:text-accent dark:hover:text-accent-dark transition-colors">{post.data.title}</h2>
-                <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">{post.data.description}</p>
-                <div class="flex items-center gap-3 mt-2.5">
-                  <time class="text-xs text-gray-400">{post.data.pubDate.toLocaleDateString('zh-CN')}</time>
-                  {(post.data.tags || []).length > 0 && (
-                    <div class="flex gap-1.5">
-                      {post.data.tags!.map(tag => (
-                        <span class="px-2 py-0.5 text-xs rounded-full bg-gray-100 dark:bg-gray-800 text-gray-400">#{tag}</span>
-                      ))}
-                    </div>
-                  )}
-                </div>
+          <a href={`${BASE}/blog/${post.id}/`} class="post-item card-hover flex items-start gap-6 bg-white dark:bg-gray-900 rounded-2xl p-5 border border-gray-200/60 dark:border-gray-800/60" data-tags={(post.data.tags || []).join(',')} data-title={post.data.title} data-desc={post.data.description}>
+            <div class="flex-1 min-w-0">
+              <h2 class="font-semibold text-base group-hover:text-accent transition-colors mb-1">{post.data.title}</h2>
+              <p class="text-sm text-text-soft dark:text-gray-400 line-clamp-2 mb-3">{post.data.description}</p>
+              <div class="flex items-center gap-3 text-xs text-gray-400 dark:text-gray-500">
+                <time>{post.data.pubDate.toLocaleDateString('zh-CN')}</time>
+                {post.data.tags && post.data.tags.length > 0 && post.data.tags.map(tag => (
+                  <span class="px-2 py-0.5 rounded-md bg-gray-100 dark:bg-gray-800">{tag}</span>
+                ))}
               </div>
             </div>
           </a>
         ))}
       </div>
-
-      <p class="text-center text-sm text-gray-400 mt-4" id="noResults" style="display:none">😕 没有匹配的文章</p>
+      <p id="noResults" class="text-center text-sm text-gray-400 mt-6 hidden">😕 没有匹配的文章</p>
     </main>
     <Footer />
   </body>
 </html>
 
 <script>
-  // 标签过滤 + 搜索
-  const searchInput = document.getElementById('searchInput') as HTMLInputElement;
-  const tagButtons = document.querySelectorAll('.tag-btn');
-  const postItems = document.querySelectorAll('.post-item');
-  const noResults = document.getElementById('noResults')!;
+  const search = document.getElementById('search') as HTMLInputElement;
+  const tagBtns = document.querySelectorAll('.tag-btn');
+  const items = document.querySelectorAll('.post-item');
+  const noRes = document.getElementById('noResults')!;
   let activeTag = 'all';
 
   function filter() {
-    const query = searchInput.value.toLowerCase();
-    let visible = 0;
-    postItems.forEach((item) => {
-      const el = item as HTMLElement;
-      const tags = el.dataset.tags || '';
-      const title = (el.dataset.title || '').toLowerCase();
-      const desc = (el.dataset.desc || '').toLowerCase();
-      const matchTag = activeTag === 'all' || tags.split(',').includes(activeTag);
-      const matchSearch = !query || title.includes(query) || desc.includes(query);
-      const show = matchTag && matchSearch;
-      (el as HTMLElement).style.display = show ? '' : 'none';
-      if (show) visible++;
+    const q = search.value.toLowerCase(); let n = 0;
+    items.forEach(el => {
+      const e = el as HTMLElement;
+      const match = (activeTag === 'all' || (e.dataset.tags || '').split(',').includes(activeTag)) && (!q || (e.dataset.title || '').toLowerCase().includes(q) || (e.dataset.desc || '').toLowerCase().includes(q));
+      e.style.display = match ? '' : 'none'; if (match) n++;
     });
-    noResults.style.display = visible === 0 ? '' : 'none';
+    noRes.classList.toggle('hidden', n > 0);
   }
 
-  searchInput?.addEventListener('input', filter);
-
-  tagButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      activeTag = btn.dataset.tag || 'all';
-      tagButtons.forEach(b => {
-        b.classList.toggle('bg-gray-900', b.dataset.tag === activeTag);
-        b.classList.toggle('dark:bg-white', b.dataset.tag === activeTag);
-        b.classList.toggle('text-white', b.dataset.tag === activeTag);
-        b.classList.toggle('dark:text-gray-900', b.dataset.tag === activeTag);
-        b.classList.toggle('bg-gray-100', b.dataset.tag !== activeTag);
-        b.classList.toggle('dark:bg-gray-800', b.dataset.tag !== activeTag);
-        b.classList.toggle('text-gray-600', b.dataset.tag !== activeTag);
-        b.classList.toggle('dark:text-gray-300', b.dataset.tag !== activeTag);
-        b.classList.toggle('font-medium', b.dataset.tag === activeTag);
-      });
-      filter();
-    });
-  });
+  search?.addEventListener('input', filter);
+  tagBtns.forEach(b => b.addEventListener('click', () => {
+    activeTag = b.dataset.tag || 'all';
+    tagBtns.forEach(x => { const on = x.dataset.tag === activeTag; x.className = on ? 'tag-btn px-3 py-1.5 text-xs rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium transition-all' : 'tag-btn px-3 py-1.5 text-xs rounded-lg bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-text-soft dark:text-gray-400 hover:border-accent/30 transition-all'; });
+    filter();
+  }));
 </script>

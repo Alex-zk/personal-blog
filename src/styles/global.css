@@ -1,31 +1,91 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
-/* 暗黑模式：手动切换 class */
+/* ── 暗黑模式 ── */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* 基础主题变量 */
+/* ── 调色板（HSL，来自 Josh Comeau + Anthony Fu 风格）── */
 @theme {
   --font-sans: "Atkinson", sans-serif;
-  --color-accent: #2563eb;
-  --color-accent-dark: #3b82f6;
+  --color-bg: hsl(0 0% 100%);
+  --color-bg-soft: hsl(0 0% 97%);
+  --color-text: hsl(222 22% 12%);
+  --color-text-soft: hsl(222 10% 45%);
+  --color-border: hsl(220 15% 90%);
+  --color-accent: hsl(240 85% 58%);
+  --color-accent-soft: hsl(240 85% 95%);
+  --color-card: hsl(0 0% 100%);
+  --color-card-hover: hsl(240 85% 97%);
 }
 
-/* 全局样式 */
+/* ── 全局 ── */
 body {
-  @apply bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100 antialiased;
+  @apply bg-bg text-text dark:bg-gray-950 dark:text-gray-100 antialiased;
   font-family: var(--font-sans);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* 文章排版 */
+/* ── 阅读进度条 ── */
+.reading-progress {
+  position: fixed; top: 0; left: 0; height: 2px;
+  background: linear-gradient(90deg, var(--color-accent), hsl(280 85% 58%));
+  z-index: 100; width: 0%;
+  transition: width 0.1s linear;
+}
+
+/* ── 链接微交互 ── */
+a:not(.no-anim) {
+  transition: color 0.15s ease;
+}
+
+/* ── 文章卡片悬浮 ── */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px hsl(240 20% 50% / 0.08);
+  border-color: var(--color-accent);
+}
+
+/* ── 渐变文字 ── */
+.gradient-text {
+  background: linear-gradient(135deg, hsl(240 90% 60%), hsl(280 90% 60%));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── 文章排版 ── */
 .prose {
   @apply max-w-none;
+  --tw-prose-body: hsl(222 22% 18%);
+  --tw-prose-headings: hsl(222 25% 10%);
+  --tw-prose-links: hsl(240 85% 58%);
+  --tw-prose-code: hsl(280 60% 45%);
+  --tw-prose-pre-bg: hsl(220 20% 97%);
+}
+.dark .prose {
+  --tw-prose-body: hsl(220 15% 85%);
+  --tw-prose-headings: hsl(220 15% 95%);
+  --tw-prose-links: hsl(240 85% 72%);
+  --tw-prose-code: hsl(280 60% 72%);
+  --tw-prose-pre-bg: hsl(220 20% 10%);
 }
 .prose a {
-  @apply text-accent dark:text-accent-dark no-underline hover:underline;
+  @apply no-underline font-medium;
+  background: linear-gradient(to right, var(--color-accent), var(--color-accent));
+  background-size: 100% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.2s ease;
 }
+.prose a:hover { background-size: 100% 2px; }
 
-/* 滚动条美化 */
+/* ── 滚动条 ── */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { @apply bg-transparent; }
-::-webkit-scrollbar-thumb { @apply bg-gray-300 dark:bg-gray-700 rounded-full; }
+::-webkit-scrollbar-thumb { @apply bg-gray-200 dark:bg-gray-800 rounded-full; }
+
+/* ── 选中 ── */
+::selection { @apply bg-accent/20 dark:bg-accent/30; }
