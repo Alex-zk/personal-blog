@@ -1,0 +1,36 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+---
+
+<!doctype html>
+<html lang="zh-CN">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+	</head>
+	<body>
+		<Header />
+		<main>
+			<h1>👋 你好，我是 Kang</h1>
+			<p>
+				一名全栈工程师，喜欢用代码解决实际问题。
+				这里记录我的项目、思考和踩过的坑。
+			</p>
+			<p>
+				目前在做的事情：
+			</p>
+			<ul>
+				<li>探索独立开发，寻找小众但有价值的 SaaS 方向</li>
+				<li>用 AI 工具提升开发效率，并思考如何把 AI 产品化</li>
+				<li>持续学习 Rust 和系统编程</li>
+			</ul>
+			<p>
+				如果你对上面任何一个话题感兴趣，欢迎通过
+				<a href="https://github.com/">GitHub</a> 联系我，或者去看看<a href="/blog/">博客</a>。
+			</p>
+		</main>
+		<Footer />
+	</body>
+</html>
